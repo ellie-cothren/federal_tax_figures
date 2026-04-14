@@ -1,5 +1,3 @@
-# functions to create a variety of figures using federal tax data
-
 # import necessary packages
 import numpy as np
 import pandas as pd
