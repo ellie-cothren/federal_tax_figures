@@ -257,6 +257,6 @@ elif 'Effective Rates Over Time' in view:
 st.divider()
 st.caption(
     'Built with streamlit & Plotly, Data: OMB, CBO/TPC, FRED'
-    '[GitHub](https://github.com/ellie-cothren/federal-tax-figures)'
+    '[GitHub](https://github.com/ellie-cothren/federal_tax_figures)'
 )
 
