@@ -5,7 +5,8 @@ This project provides tools to automatically download, clean, and visualize fede
 
 
 ## Project Structure
-'''
+
+```
 federal-tax-dashboard/
 ├── app.py                  # Streamlit dashboard (main entry point)
 ├── src/
@@ -15,7 +16,7 @@ federal-tax-dashboard/
 │   └── config.toml         # Streamlit theme configuration
 ├── requirements.txt
 └── README.md
-'''
+```
 
 
 
