@@ -26,10 +26,5 @@ Thumbs.db
  
 # Streamlit
 .streamlit/secrets.toml
- 
-# Figures (generated)
-figures/
 
-# Old Versions
-creating_figures.py
-federal_tax_visualization.ipynb
+
