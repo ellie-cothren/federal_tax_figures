@@ -22,7 +22,7 @@ DATA_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'data')
 # Download Functions
 #--------------------------------------------------------------------------------
 
-@st.chache_data(ttl=86400, show_spinner='Downloading OMB data...')
+@st.cache_data(ttl=86400, show_spinner='Downloading OMB data...')
 def download_omb_tables(budget_year: int=2026) -> tuple[pd.DataFrame, pd.DataFrame]:
     
     # Download OMB Historical Tables 2.1 and 2.2
@@ -65,7 +65,7 @@ def download_omb_tables(budget_year: int=2026) -> tuple[pd.DataFrame, pd.DataFra
     
 
 
-@st.cahce_data(ttl=86400, show_spinner='Downloading effective tax rate data...')
+@st.cache_data(ttl=86400, show_spinner='Downloading effective tax rate data...')
 def download_tpc_table() -> pd.DataFrame:
     
     # Download Tax Policy Center effective tax rate data
@@ -135,7 +135,7 @@ def clean_omb_dataframe(df: pd.DataFrame) -> pd.DataFrame:
         level_0 = col[0]    # first part
         level_1 = col[1]    # second part
 
-        if 'Unnamed' in level_1:
+        if 'Unnamed' in str(level_1):
             new_columns.append(level_0)
         else:
             combined = f"{level_0} {level_1}"
@@ -151,6 +151,10 @@ def clean_omb_dataframe(df: pd.DataFrame) -> pd.DataFrame:
 
     # remove any standalone numbers leftover
     df_clean.columns = [re.sub(r'\s+\d+\s+', ' ', col).strip() for col in df_clean.columns]
+
+    df_clean.columns = [col.strip() for col in df_clean.columns]
+    if df_clean.columns[0] != 'Fiscal Year':
+        df_clean.rename(columns={df_clean.columns[0]: 'Fiscal Year'}, inplace=True)
 
     # remove rows where fiscal year is NaN (i.e. remove footnotes)
     df_clean['Fiscal Year'] = pd.to_numeric(df_clean['Fiscal Year'], errors='coerce')
@@ -222,6 +226,7 @@ def clean_tpc_dataframe(df: pd.DataFrame) -> pd.DataFrame:
     df_clean.columns = df_clean.columns.str.strip()
     df_clean.columns = df_clean.columns.str.replace(r'\s+', ' ', regex=True)
     
+    print("Tax Types after cleaning:", df_clean['Tax Type'].unique().tolist())
 
     return df_clean
 
