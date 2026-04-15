@@ -1,152 +1,51 @@
-# Federal Tax Revenue Visualizations
+# Federal Tax Revenue Visualizations - Streamlit Dashboard
 
 ## Overview 
 This project provides tools to automatically download, clean, and visualize federal tax data from government sources (Office of Management and Budget, Congressional Budget Office, Tax Policy Center). 
 
 
 ## Project Structure
-```
-federal_tax_figures/
-├── data/                                               # csv files of cleaned data
-│   ├── avg_effective_tax_rates.csv                 
-│   ├── receipts_by_source_amount_nominal.csv       
-│   ├── receipts_by_source_amount_real.csv          
-│   └── receipts_by_source_percent.csv              
-├── figures/                                            # png files of generated figures
-│   └── (generated visualizations)
-├── .gitignore
-├── creating_figures.py                                 # python functions to create figures
-├── data_download_and_clean.py                          # python functions to download and clean data
-├── federal_tax_visualization.ipynb                     # jupyter notebook to create visualization 
-├── README.md
-└── requirements.txt
-
-```
-
-## Available Visualizations
-
-### 1. Effective Tax Rates by Income Group
-**Function:** `effective_rates_chart()` 
-
-**Data File:** `avg_effective_tax_rates.csv`
-
-**Saved As:** `effective_rates_fy{year}.png`
-
-Stacked bar chart showing average effective tax rates broken down by tax type (individual income, payroll, corporate, excise) for different income groups (quintiles and top percentiles). Shown for a given fiscal year.
-
-**Sample Output:**
-![Sample Visualization Effective Rates](figures/effective_rates_fy2003.png)
+'''
+federal-tax-dashboard/
+├── app.py                  # Streamlit dashboard (main entry point)
+├── src/
+│   ├── data_pipeline.py    # Download, clean, and cache all datasets
+│   └── charts.py           # Plotly chart functions
+├── .streamlit/
+│   └── config.toml         # Streamlit theme configuration
+├── requirements.txt
+└── README.md
+'''
 
 
-### 2. Sources of Federal Tax Revenue - Donut Chart
-**Function:** `revenue_donut_chart()` 
-
-**Data File:** `receipts_by_source_amount_nominal.csv` or `receipts_by_source_amount_real.csv`
-
-**Saved As:** `revenue_donut_fy{year}.png`
-
-Donut chart showing the share of tax revenue by source (individual income tax, corporate income tax, social insurance and retirement, excise taxes, and other) for a given fiscal year. 
-
-**Sample Output**
-![Sample Visualization Donut](figures/revenue_donut_fy2018.png)
-
-
-### 3. Sources of Federal Tax Revenue - Pie Chart
-**Function:** `revenue_pie_chart()`
-
-**Data File:**  `receipts_by_source_amount_nominal.csv` or `receipts_by_source_amount_real.csv`
-
-**Saved As:** `revenue_pie_fy{year}.png`
-
-Pie chart showing the share of tax revenue by source (individual income tax, corporate income tax, social insurance and retirement, excise taxes, and other) for a given fiscal year. The information in this chart is the same as the information in the donut chart - they are only stylistically different.
-
-**Sample Output**
-![Sample Visualization Pie](figures/revenue_pie_fy1971.png)
-
-### 4. Historical Revenue Share (Time Series)
-**Function:** `revenue_share_hist()`
-
-**Data File:** `receipts_by_source_percent.csv`
-
-**Saved As:** `revenue_share_hist_start{year}.png`
-
-Stacked area chart showing how revenue sources have evolved as percentages of total revenue. Based on time series data, given a particular starting year.
-
-**Sample Output**
-![Sample Visualization Rev Share TS](figures/revenue_share_hist_start1935.png)
-
-
-### 5. Historical Revenue (Time Series)
-**Function:** `revenue_hist()`
-
-**Data File:** `receipts_by_source_amount_nominal.csv` or `receipts_by_source_amount_real.csv`
-
-**Saved As:** `revenue_hist_{type}_start{year}.png`
-
-Stacked area chart of total federal revenues by source in billions of dollars. Baesd on time series data given a particular starting year, can be nominal or real (adjusted for inflation)
-
-**Sample Output:**
-![Sample Visualization Rev TS](figures/revenue_hist_real_start1950.png)
 
 
 ## How to Use
 
+View [Dashboard App](https://federaltaxfigures-jq9vcwbvxmvdbwf2phzzx7.streamlit.app/)
+
+Or see directions below for running locally
+
+### Prerequisites
+- Python 3.10+
+
+(see requirements.txt for all requirements)
+
 ### Installation
+ 
 ```bash
-# clone the repository
-git clone https://github.com/ellie-cothren/federal_tax_figures.git
-cd federal_tax_figures
-
-# create virtual environment
-python -m venv venv
-venv/Scripts/activate
-
-# install dependencies
+git clone https://github.com/ellie-cothren/federal-tax-figures.git
+cd federal-tax-figures
 pip install -r requirements.txt
 ```
-
-### Requirements 
+ 
+### Run Locally
+ 
+```bash
+streamlit run app.py
 ```
-pandas>=2.0.0
-matplotlib>=3.7.0
-numpy>=1.24.0
-requests>=2.31.0
-openpyxl>=3.1.0
-jupyter>=1.0.0
-```
-
-See `requirements.txt` for full details.
-
-### Usage
-
-**Option 1: Run Jupyter Notebooks**
-
-Use `federal_tax_visualization.ipynb` to download and clean data and create figures. 
-
-You can choose the figure style, output directory, specify the fiscal year for single year plots, and specify the starting year for time series plots. These can also be set for each plot individually, if preferred. 
-
-```python
-# set style and output directory for figures 
-style = 'default'
-output_dir = 'figures'
-
-# set fiscal year
-fiscal_year=2018
-
-# set time series start year (match nominal and real time series)
-start_year=1950
-```
-
-**Option 2: Use Functions Directly**
-
-Import functions and use directly
-
-```python
-import data_download_and_clean as dat
-
-import creating_figures as fig
-```
-
+ 
+On first run, it downloads and caches data from OMB, TPC, and FRED (takes ~10–15 seconds)
 
 
 ## Data Sources
@@ -168,11 +67,14 @@ Note: Government URLs may change when new fiscal year budgets are released. Chec
 
 ##  License
 
-This project is open source and available for educational and demonstration purposes. Please feel free to use the code as a reference for your own projects.
+MIT License
 
 ##  Author
 
 **Ellie Cothren**  
+Data Scientist
+
+
 PhD Candidate, Economics, Indiana University  
 
 [LinkedIn](https://linkedin.com/in/elliecothren) | [GitHub](https://github.com/ellie-cothren) | [Personal Website](www.elliecothren.com)
