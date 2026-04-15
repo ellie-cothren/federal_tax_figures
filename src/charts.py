@@ -69,7 +69,7 @@ def effective_rates_chart(df: pd.DataFrame, fiscal_year: int) -> go.Figure:
     income_groups = [
         'Lowest Quintile',
         'Second Quintile',
-        'Middle Qunitile',
+        'Middle Quintile',
         'Fourth Quintile',
         'Highest Quintile',
         '81st - 90th Percentiles', 
@@ -112,17 +112,19 @@ def effective_rates_chart(df: pd.DataFrame, fiscal_year: int) -> go.Figure:
     overall = df_fy.loc['Total Federal Tax Rate', income_groups].values.astype(float)
     for i, rate in enumerate(overall):
         fig.add_annotation(
-            x=short_labels[i], y=rate + 0.8,
+            x=short_labels[i], 
+            y=rate + 1,
             text=f'<b>{rate:.1f}%</b>',
             showarrow=False,
-            font=dict(size=11)
+            font=dict(size=13, color='black')
         )
 
+
     fig.update_layout(
-        barmode='stack',
+        barmode='relative',
         title=dict(text=f'Effective Federal Tax Rates - FY {fiscal_year}', font=dict(size=20)),
         yaxis_title='Average Tax Rate (%)',
-        yaxis=dict(range=[0, max(overall) + 6])
+        yaxis=dict(range=[None, max(overall) + 6])
     )
 
     return _apply_defaults(fig)
@@ -130,60 +132,65 @@ def effective_rates_chart(df: pd.DataFrame, fiscal_year: int) -> go.Figure:
 
 
 #---------------------------------------------------------------------------------
-# 2. Revenue Donut Chart
+# 2. Revenue Pie Chart
 #---------------------------------------------------------------------------------
 
-def revenue_donut_chart(df: pd.DataFrame, fiscal_year: int) -> go.Figure:
+def revenue_pie_chart(df: pd.DataFrame, fiscal_year: int) -> go.Figure:
+    """Pie chart of federal revenue composition for a single year."""
 
-    df_fy = df.set_index('Fiscal Year')
+    df_fy = df.set_index("Fiscal Year")
     if fiscal_year not in df_fy.index:
-        return go.Figure().add_annotation(text='No data for this year', showarrow=False)
-    
-    
+        return go.Figure().add_annotation(text="No data for this year", showarrow=False)
+
     row = df_fy.loc[fiscal_year]
 
     source_cols = [
-        'Individual Income Taxes',
-        'Corporation Income Taxes',
-        'Social Insurance and Retirement Receipts Total',
-        'Excise Taxes', 
-        'Other'
+        "Individual Income Taxes",
+        "Corporation Income Taxes",
+        "Social Insurance and Retirement Receipts Total",
+        "Excise Taxes",
+        "Other",
     ]
-
     display_labels = [
-        'Individual Income',
-        'Corporate Income',
-        'Social Insurance & Retirement',
-        'Excise Taxes', 
-        'Other'
+        "Individual Income Taxes",
+        "Corporate Income Taxes",
+        "Social Insurance &\nRetirement Receipts",
+        "Excise Taxes",
+        "Other",
     ]
 
-    values = np.array([row[c] for c in source_cols]) / 1000  # converts millions to billions
+    values = np.array([row[c] for c in source_cols]) / 1000  # millions → billions
     total = values.sum()
     colors = [COLORS[c] for c in source_cols]
 
     fig = go.Figure(go.Pie(
         labels=display_labels,
         values=values,
-        hole=0.5,
-        marker=dict(colors=colors, line=dict(color='white', width=2)),
-        textinfo='label+percent',
-        textposition='outside',
-        textfont=dict(size=13),
-        hovertemplate='%{label}<br>$%{value:.1f}B (%{percent})<extra></extra>'
+        marker=dict(colors=colors, line=dict(color="white", width=2)),
+        textinfo="percent",
+        textposition="inside",
+        textfont=dict(size=16, color="white"),
+        hovertemplate="%{label}<br>$%{value:.1f}B (%{percent})<extra></extra>",
+        rotation=-45,
     ))
-    fig.update_layout(
-        title=dict(text=f'Federal Revenue Sources - FY {fiscal_year}', font=dict(size=20)),
-        annotations=[dict(
-            text=f'<b>${total:.0f}B</b><br>Total',
-            x=0.5, y=0.5, fontsize=18, showarrow=False
-        )],
-        showlegend=False,
-        margin=dict(l=30, r=30, t=80, b=30)
-    )
 
-    fig.update(font=LAYOUT_DEFAULTS['font'], paper_bgcolor="rgba(0,0,0,0)")
-    
+    fig.update_layout(
+        title=dict(
+            text=f"Federal Revenue Sources — FY {fiscal_year}<br>"
+                 f"<span style='font-size:14px'>Total Revenue = ${total:.1f} billion</span>",
+            font=dict(size=20),
+        ),
+        legend=dict(
+            orientation="v",
+            yanchor="top",
+            y=0.95,
+            xanchor="left",
+            x=1.02,
+            font=dict(size=16),
+        ),
+        margin=dict(l=30, r=150, t=100, b=30),
+    )
+    fig.update_layout(font=LAYOUT_DEFAULTS["font"], paper_bgcolor="rgba(0,0,0,0)")
     return fig
 
 
@@ -221,7 +228,7 @@ def revenue_share_history(df: pd.DataFrame, start_year: int) -> go.Figure:
             stackgroup='one',
             mode='lines',
             line=dict(width=0.5),
-            fillercolor=COLORS[col],
+            fillcolor=COLORS[col],
             marker_color=COLORS[col],
             hovertemplate=f'{label}: ' + '%{y:.1f}%<extra></extra>'
         ))
@@ -282,7 +289,7 @@ def revenue_history(df: pd.DataFrame, start_year: int, real: bool=False) -> go.F
     fig.update_layout(
         title=dict(
             text=f'Federal Revenue by Source, {tag} ({df.index.min()}-{df.index.max()})',
-            fontsize=dict(size=20)
+            font=dict(size=20)
         ),
         yaxis=dict(title=f'Revenue (Billions USD, {tag})', tickprefix='$', tickformat=','),
         xaxis_title='Fiscal Year'
