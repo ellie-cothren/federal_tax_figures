@@ -18,10 +18,10 @@ st.set_page_config(
 # Imports (after page config)
 #---------------------------------------------------------------------
 
-from src.data_download_and_clean import load_all_data
+from src.data_pipeline import load_all_data
 from src.charts import(
     effective_rates_chart,
-    revenue_donut_chart,
+    revenue_pie_chart,
     revenue_share_history,
     revenue_history,
     effective_rates_over_time
@@ -134,47 +134,49 @@ if 'Effective Tax Rates' in view and 'Over Time' not in view:
             """
         )
 
+    df_fy = eff_rates[eff_rates['Year'] == 2019].copy()
+    df_fy = df_fy.set_index('Tax Type')
+    print("Tax Types in index:")
+    for t in df_fy.index.unique():
+        print(f"  '{t}'")
+
+    print("Individual Income Tax Rate, Lowest Quintile:", 
+      df_fy.loc['Individual Income Tax Rate', 'Lowest Quintile'])
+    print("Payroll Tax Rate, Lowest Quintile:",
+      df_fy.loc['Payroll Tax Rate', 'Lowest Quintile'])
+    print("\nFull row for Individual Income Tax Rate:")
+    print(df_fy.loc['Individual Income Tax Rate'])
+
 
 #---------------------------------------------------------------------------------------------
-# View 2: Revenue Composition (Revenue by Source), single year donut + time series share
+# View 2: Revenue Composition (Revenue by Source), single year pie + time series share
 #---------------------------------------------------------------------------------------------
 
-elif 'Revenue Composition' in view:
+elif 'Tax Revenue Sources' in view:
 
-    col_ctrl1, col_ctrl2 = st.columns([1, 3])
+    col_ctrl1, _ = st.columns([1, 3])
     with col_ctrl1:
         fy_rev = st.select_slider(
-            "Fiscal Year",
+            'Fiscal Year',
             options=revenue_years,
             value=max(revenue_years),
-            key="fy_rev",
+            key='fy_rev',
         )
- 
-    col_left, col_right = st.columns([1, 1])
-    with col_left:
-        fig_donut = revenue_donut_chart(receipts_nom, fy_rev)
-        st.plotly_chart(fig_donut, use_container_width=True, config={"displayModeBar": False})
- 
-    with col_right:
-        fig_share = revenue_share_history(receipts_pct, start_year=min(revenue_years))
-        # Add a vertical line for selected year
-        fig_share.add_vline(
-            x=fy_rev, line_dash="dot", line_color="#94A3B8",
-            annotation_text=str(fy_rev), annotation_position="top",
-        )
-        st.plotly_chart(fig_share, use_container_width=True, config={"displayModeBar": False})
 
+    fig_pie = revenue_pie_chart(receipts_nom, fy_rev)
+    st.plotly_chart(fig_pie, use_container_width=True, config={"displayModeBar": False})
 
     with st.expander('About this chart'):
         st.markdown(
             """
-            The donut chart shows the composition of federal revenue for a given fiscal year.
-            The stacked area chart shows how the mix of revenue sources has shifted over time.
- 
-            **Source:** OMB Historical Table 2.1 and 2.2.
+            The pie chart shows the composition of federal revenue for a single fiscal year.
+
+            Key trend: Corporate income taxes have shrunk from ~30% of revenue in the 1950s to
+            roughly 9–15% today, while payroll taxes (Social Insurance) have grown substantially.
+
+            **Source:** OMB Historical Table 2.1.
             """
         )
-
 
 
 #-------------------------------------------------------------------------------------------
